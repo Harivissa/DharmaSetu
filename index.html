@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dharma Setu — Prototype</title>
+  <style>
+    :root{
+      --saffron: #ff9933;
+      --saffron-deep: #ff6600;
+      --bg-black: #000000;
+      --card-bg: rgba(255,255,255,0.04);
+      --glass: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.75);
+      --accent: #ffd9b3;
+      --max-width: 1100px;
+    }
+    /* Basic page */
+    * { box-sizing: border-box; }
+    html,body { height:100%; margin:0; font-family: "Inter", "Segoe UI", Arial, sans-serif; background: var(--bg-black); color: #fff; }
+    a{ color: var(--saffron); text-decoration:none; }
+    .container{ max-width: var(--max-width); margin: 0 auto; padding: 20px; }
+    /* SPLASH - full-screen */
+    #splash{
+      position: fixed; inset:0; z-index: 9999;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background: #000;
+      transition: opacity .6s ease, visibility .6s;
+    }
+    #splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    #splash img.splash-img{
+      width: 220px; max-width: 70%;
+      border: 3px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      object-fit: cover;
+      margin-bottom: 18px;
+    }
+    #splash h1{
+      font-size: clamp(1.6rem, 3.4vw, 3rem);
+      margin:0;
+      color: var(--saffron);
+      letter-spacing: .6px;
+      text-align:center;
+      text-shadow: 0 0 10px rgba(255,102,0,0.8), 0 0 30px rgba(255,51,0,0.4);
+    }
+    #splash p.small { margin-top:10px; color: rgba(255,255,255,0.75); font-size: .95rem; }
+
+    /* MAIN app (hidden until splash removed) */
+    #app{ display:none; min-height:100vh; }
+
+    /* background branding: flag + emblem watermark */
+    header.brand {
+      position: relative;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        url('https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      padding: 20px 0 28px;
+      overflow: hidden;
+    }
+    header.brand::after{
+      content: "";
+      position: absolute; inset:0;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/1/19/Emblem_of_India.svg');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 220px;
+      opacity: 0.06;
+      pointer-events:none;
+    }
+    nav.main {
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 16px; max-width: var(--max-width); margin: 0 auto; padding: 0 20px;
+    }
+    .brand-left { display:flex; align-items:center; gap:12px; }
+    .logo {
+      width:56px; height:56px; border-radius:8px; background: linear-gradient(135deg,var(--saffron),var(--saffron-deep));
+      display:flex; align-items:center; justify-content:center; font-weight:700; color:#000;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    }
+    nav.links { display:flex; gap:12px; align-items:center; }
+    nav.links a { padding:8px 12px; border-radius:8px; color:white; background: rgba(0,0,0,0.25); transition: .18s; }
+    nav.links a:hover { background: rgba(255,153,51,0.12); color: var(--saffron); transform: translateY(-2px); }
+
+    /* Hero */
+    .hero { padding: 36px 20px; text-align:center; }
+    .hero h2 { font-size: clamp(1.4rem, 3.2vw, 2.4rem); margin: 6px 0 10px; color: var(--saffron); }
+    .hero p { color: var(--muted); max-width: 820px; margin: 0 auto 18px; font-size: 1.05rem; }
+
+    /* Grid sections */
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:18px; margin-top:18px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.04);
+      padding: 18px; border-radius:12px; min-height:140px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+    .card h3 { margin:0 0 8px; color: var(--accent); }
+    .btn {
+      display:inline-block; padding:10px 14px; border-radius:10px; background: var(--saffron); color:#000;
+      font-weight:600; margin-top:12px; cursor:pointer; border: none;
+    }
+    .btn.secondary { background: transparent; color: var(--saffron); border: 1px solid rgba(255,255,255,0.06); }
+
+    /* News search */
+    .search-bar { display:flex; gap:8px; margin-top:8px; }
+    .search-bar input[type="search"]{ flex:1; padding: 10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color:white; }
+    .news-results { margin-top:12px; display:grid; gap:10px; }
+    .news-item { padding:12px; border-radius:8px; background: rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.03); }
+    .news-item a { color: var(--saffron); font-weight:600; display:block; margin-bottom:6px; }
+    .meta { color: rgba(255,255,255,0.6); font-size: .9rem; }
+
+    /* Contact form */
+    form.contact { display:flex; flex-direction:column; gap:10px; max-width:520px; margin:0 auto; }
+    form input, form textarea { padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color:white; }
+    form button { width:170px; align-self:flex-start; }
+
+    /* Modal */
+    .modal {
+      position: fixed; inset:0; display:none; align-items:center; justify-content:center; z-index: 2000;
+      background: rgba(0,0,0,0.6);
+    }
+    .modal .box { width:90%; max-width:680px; background: #0b0b0b; border-radius:12px; padding:18px; border:1px solid rgba(255,255,255,0.04); }
+    .modal.show { display:flex; }
+
+    /* Footer */
+    footer { padding:24px 8px; text-align:center; color: rgba(255,255,255,0.6); }
+
+    /* Responsive tweaks */
+    @media (max-width:640px){
+      nav.links { display:none; } 
+      .brand-left .title { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SPLASH -->
+  <div id="splash" role="dialog" aria-labelledby="splash-heading" aria-describedby="splash-desc">
+    <!-- Use a local file 'splash-photo.jpg' if present; otherwise fallback to placeholder -->
+    <img class="splash-img" id="splashImage"
+         src="splash-photo.jpg"
+         alt="Opening image"
+         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1504198453319-5ce911bafcde?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&s=ad2a3a38a67f5b37e3d3b51da2a0d04f';" />
+    <h1 id="splash-heading">धर्मो रक्षति रक्षितः</h1>
+    <p class="small" id="splash-desc">Dharma Setu — A bridge of values, service & knowledge</p>
+    <p style="font-size:.85rem;color:rgba(255,255,255,0.5);margin-top:12px;">(Tap anywhere to continue)</p>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app">
+    <header class="brand" role="banner">
+      <div class="container nav-wrap">
+        <nav class="main" role="navigation" aria-label="Main navigation">
+          <div class="brand-left">
+            <div class="logo">DS</div>
+            <div class="title">
+              <div style="font-weight:700;font-size:1.1rem;">Dharma Setu</div>
+              <div style="font-size:.85rem;color:rgba(255,255,255,0.75);">Bridge of Righteousness</div>
+            </div>
+          </div>
+
+          <div class="links" role="menu">
+            <a href="#home" data-target="#home" role="menuitem">Home</a>
+            <a href="#bharat" data-target="#bharat" role="menuitem">Bharat at Home</a>
+            <a href="#news" data-target="#news" role="menuitem">News</a>
+            <a href="#contact" data-target="#contact" role="menuitem">Contact</a>
+          </div>
+        </nav>
+      </div>
+
+      <div class="hero container" id="home" tabindex="-1">
+        <h2>Welcome to Dharma Setu</h2>
+        <p>We celebrate Bharat — its culture, its people, and its spirit. Explore curated content, search news, and get in touch.</p>
+        <div style="margin-top:10px;">
+          <button class="btn" onclick="scrollToSection('#bharat')">Explore Bharat</button>
+          <button class="btn secondary" style="margin-left:8px;" onclick="scrollToSection('#news')">Search News</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container" role="main">
+      <!-- Bharat at Home -->
+      <section id="bharat" aria-labelledby="bharat-heading">
+        <h3 id="bharat-heading" style="color:var(--saffron); margin-bottom:6px;">Bharat at Home</h3>
+        <p style="color:var(--muted); margin-top:0;">A short collection about India's heritage, science, and local initiatives.</p>
+        <div class="grid" style="margin-top:14px;">
+          <div class="card">
+            <h3>📜 Heritage</h3>
+            <p style="color:var(--muted)">Discover major historical places and their stories — from the Indus Valley to modern monuments.</p>
+            <button class="btn secondary" onclick="openModal('heritage')">Learn more</button>
+          </div>
+          <div class="card">
+            <h3>🔬 Science & Innovation</h3>
+            <p style="color:var(--muted)">Explore India’s space missions, startups, and scientific achievements that inspire youth.</p>
+            <button class="btn secondary" onclick="openModal('science')">Learn more</button>
+          </div>
+          <div class="card">
+            <h3>🌾 Local Initiatives</h3>
+            <p style="color:var(--muted)">Stories of community service, Gram Sabhas, and sustainable projects across Bharat.</p>
+            <button class="btn secondary" onclick="openModal('local')">Learn more</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- News Search -->
+      <section id="news" style="margin-top:28px;" aria-labelledby="news-heading">
+        <h3 id="news-heading" style="color:var(--saffron); margin-bottom:6px;">News Search</h3>
+        <p style="color:var(--muted); margin-top:0;">Type a topic and press Search. (If you have a News API key you may paste it into the variable inside the script to get richer results.)</p>
+
+        <div style="margin-top:12px;">
+          <div class="search-bar">
+            <input id="newsQuery" type="search" placeholder="Search news (e.g., India, economy, sports)" aria-label="Search news" />
+            <button class="btn" id="newsSearchBtn">Search</button>
+          </div>
+
+          <div id="newsResults" class="news-results" aria-live="polite" style="margin-top:12px;"></div>
+          <div id="newsNote" style="color:rgba(255,255,255,0.6); font-size:.95rem; margin-top:8px;">
+            <small>Tip: For country-specific and trusted sources, get an API key from a news provider and plug it into the code (see instructions below).</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" style="margin-top:28px;" aria-labelledby="contact-heading">
+        <h3 id="contact-heading" style="color:var(--saffron); margin-bottom:6px;">Contact Us</h3>
+        <p style="color:var(--muted); margin-top:0;">Send us a message — it will be saved locally on your browser for this prototype.</p>
+
+        <form class="contact" id="contactForm">
+          <input type="text" id="c_name" placeholder="Your name" required aria-label="Your name" />
+          <input type="email" id="c_email" placeholder="Your email" required aria-label="Your email" />
+          <textarea id="c_message" rows="5" placeholder="Your message" required aria-label="Your message"></textarea>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <button type="submit" class="btn">Send Message</button>
+            <button type="button" class="btn secondary" onclick="downloadMessages()">Download Submissions</button>
+          </div>
+          <div id="contactStatus" style="margin-top:8px;color:var(--accent);"></div>
+        </form>
+      </section>
+
+    </main>
+
+    <!-- Modal (for Bharat cards) -->
+    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="box" role="document">
+        <button style="float:right;background:transparent;border:none;color:var(--saffron);font-weight:700;font-size:1.1rem;" onclick="closeModal()">✕</button>
+        <div id="modalContent" style="clear:both;"></div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">
+        © Dharma Setu — Prototype • Built with ❤️ by Kanha's Ruku assistant
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    /**********************
+     * Splash behavior
+     **********************/
+    const splash = document.getElementById('splash');
+    const app = document.getElementById('app');
+
+    // Hide splash after 4 seconds, or on tap/click
+    function revealApp(){
+      if(!splash.classList.contains('hidden')){
+        splash.classList.add('hidden');
+        setTimeout(()=>{ app.style.display = 'block'; window.scrollTo({top:0}); }, 450);
+      }
+    }
+    // timed reveal
+    setTimeout(revealApp, 4000);
+    // reveal on any click/tap (for mobile quick continue)
+    splash.addEventListener('click', revealApp);
+    splash.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') revealApp(); });
+
+    /**********************
+     * Navigation & scroll
+     **********************/
+    function scrollToSection(sel){
+      const el = document.querySelector(sel);
+      if(!el) return;
+      // ensure main visible
+      app.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.querySelectorAll('nav.links a').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const t = a.getAttribute('data-target') || a.getAttribute('href');
+        scrollToSection(t);
+      });
+    });
+
+    /**********************
+     * Modal for Bharat items
+     **********************/
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    const contentData = {
+      heritage: {
+        title: 'Heritage — Quick Notes',
+        body: `<p style="color:var(--muted)">India's heritage is a tapestry of ancient civilizations, classical arts, temples, and monuments. From the Indus Valley's archaeological sites to the UNESCO world heritage list — each place tells a story.</p>
+               <ul style="color:var(--muted)"><li>Major sites: Qutub, Ajanta & Ellora, Sun Temple Konark</li><li>Tip: Explore local museums and guided tours</li></ul>`
+      },
+      science: {
+        title: 'Science & Innovation — Quick Notes',
+        body: `<p style="color:var(--muted)">India's space and tech missions (ISRO, Open-source contributions, thriving startup ecosystem) have contributed globally.</p>
+               <ul style="color:var(--muted)"><li>Major: Chandrayaan, Mangalyaan</li><li>Startups: wide presence in fintech, agritech, climate tech</li></ul>`
+      },
+      local: {
+        title: 'Local Initiatives — Quick Notes',
+        body: `<p style="color:var(--muted)">Community-led work in sanitation, sustainability, and local crafts are powerful. Learn about micro-initiatives in your district.</p>`
+      }
+    };
+    function openModal(key){
+      const d = contentData[key];
+      if(!d) return;
+      modalContent.innerHTML = `<h2 style="color:var(--saffron)">${d.title}</h2><div style="margin-top:8px;">${d.body}</div>`;
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden','false');
+    }
+    function closeModal(){
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden','true');
+    }
+    // close on background click
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+
+    /**********************
+     * News Search
+     * - If you have a News API / GNews key, set API_KEY below to use it.
+     * - Fallback: HackerNews Algolia search (no key required).
+     **********************/
+    const API_KEY = ''; // <-- OPTIONAL: paste your news API key here to use a real news provider (e.g., gnews.io or newsapi.org)
+    const newsBtn = document.getElementById('newsSearchBtn');
+    const newsResults = document.getElementById('newsResults');
+    const newsQuery = document.getElementById('newsQuery');
+
+    async function searchNews(){
+      const q = (newsQuery.value || '').trim();
+      newsResults.innerHTML = '';
+      if(!q) { newsResults.innerHTML = `<div style="color:var(--muted)">Please enter a search term.</div>`; return; }
+      newsResults.innerHTML = `<div style="color:var(--muted)">Searching for “${q}”...</div>`;
+
+      try {
+        let items = [];
+        if(API_KEY && API_KEY.trim().length>5){
+          // Example for GNews or NewsAPI - you may adapt based on provider
+          // Here is a sample for gnews.io:
+          // const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&token=${API_KEY}`;
+          // Using NewsAPI (newsapi.org) would be similar but needs server-side for some CORS.
+          const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&max=10&token=${API_KEY}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          items = (data.articles || []).map(a => ({ title:a.title, url:a.url, source: a.source?.name || 'news', date: a.publishedAt }));
+        } else {
+          // fallback: Hacker News Algolia (works without key, gives tech/general news)
+          const url = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(q)}&tags=story&hitsPerPage=12`;
+          const res = await fetch(url);
+          const data = await res.json();
+          items = (data.hits || []).map(h => ({ title: h.title || h.story_title || 'Untitled', url: h.url || `https://news.ycombinator.com/item?id=${h.objectID}`, source: h.author, date: h.created_at }));
+        }
+
+        if(items.length === 0) {
+          newsResults.innerHTML = `<div style="color:var(--muted)">No results found for “${q}”.</div>`;
+          return;
+        }
+        newsResults.innerHTML = '';
+        items.forEach(it=>{
+          const node = document.createElement('div');
+          node.className = 'news-item';
+          node.innerHTML = `<a href="${it.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(it.title)}</a>
+                            <div class="meta">Source: ${escapeHtml(it.source || 'unknown')} • ${formatDate(it.date)}</div>`;
+          newsResults.appendChild(node);
+        });
+
+      } catch(err){
+        newsResults.innerHTML = `<div style="color:#ff9999">Error fetching news. (${escapeHtml(err.message || err)})</div>`;
+        console.error(err);
+      }
+    }
+    newsBtn.addEventListener('click', searchNews);
+    newsQuery.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') searchNews(); });
+
+    function formatDate(d){
+      if(!d) return '';
+      const dt = new Date(d);
+      if(isNaN(dt)) return '';
+      return dt.toLocaleString();
+    }
+    function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    /**********************
+     * Contact form (saves locally)
+     **********************/
+    const contactForm = document.getElementById('contactForm');
+    contactForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('c_name').value.trim();
+      const email = document.getElementById('c_email').value.trim();
+      const msg = document.getElementById('c_message').value.trim();
+      if(!name || !email || !msg) return;
+      const item = { id: Date.now(), name, email, message: msg, createdAt: new Date().toISOString() };
+      const all = JSON.parse(localStorage.getItem('dharma_messages') || '[]');
+      all.push(item);
+      localStorage.setItem('dharma_messages', JSON.stringify(all));
+      document.getElementById('contactStatus').textContent = 'Message saved locally. Thank you!';
+      contactForm.reset();
+      setTimeout(()=>{ document.getElementById('contactStatus').textContent = ''; }, 4000);
+    });
+
+    function downloadMessages(){
+      const all = JSON.parse(localStorage.getItem('dharma_messages') || '[]');
+      if(all.length === 0){ alert('No saved submissions yet.'); return; }
+      const blob = new Blob([JSON.stringify(all, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dharma_submissions.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    /**********************
+     * Small accessibility helpers
+     **********************/
+    // Focus main on reveal
+    function focusFirst(){
+      try { document.querySelector('#home').focus(); }catch(e){}
+    }
+    // focus when app shown
+    window.addEventListener('load', ()=>{ setTimeout(()=> focusFirst(), 500); });
+
+  </script>
+</body>
+</html>
