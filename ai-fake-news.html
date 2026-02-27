@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dharma Setu — AI Fake News Detection System</title>
+
+<style>
+:root{
+  --saffron:#ff9933;
+  --bg-black:#000000;
+  --muted:rgba(255,255,255,0.75);
+  --max-width:1000px;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  background:var(--bg-black);
+  color:white;
+  font-family:"Inter","Segoe UI",Arial,sans-serif;
+}
+
+.container{
+  max-width:var(--max-width);
+  margin:auto;
+  padding:40px 20px;
+}
+
+h1{
+  color:var(--saffron);
+  text-align:center;
+}
+
+.subtitle{
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:30px;
+}
+
+.card{
+  background:rgba(255,255,255,.03);
+  padding:25px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.05);
+}
+
+textarea{
+  width:100%;
+  padding:15px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+  color:white;
+  resize:vertical;
+}
+
+button{
+  background:var(--saffron);
+  border:none;
+  padding:12px 20px;
+  margin-top:15px;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.result{
+  margin-top:20px;
+  padding:20px;
+  border-radius:10px;
+  background:rgba(255,255,255,.05);
+  display:none;
+}
+
+.back{
+  display:block;
+  text-align:center;
+  margin-top:30px;
+  color:var(--saffron);
+  text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>AI Fake News Detection System</h1>
+<div class="subtitle">
+Analyzes exaggeration, urgency and emotional manipulation in text.
+</div>
+
+<div class="card">
+
+<textarea id="inputText" rows="8"
+placeholder="Paste news content here..."></textarea>
+
+<button onclick="analyzeText()">Run AI Analysis</button>
+
+<div id="output" class="result"></div>
+
+</div>
+
+<a href="index.html" class="back">← Back to Home</a>
+
+</div>
+
+<script>
+function analyzeText(){
+
+let text=document.getElementById("inputText").value.toLowerCase();
+let output=document.getElementById("output");
+
+if(text.trim()===""){
+output.style.display="block";
+output.innerHTML="Please enter content.";
+return;
+}
+
+const triggerWords=["shocking","breaking","secret","urgent","miracle","100%","exposed","danger","threat","unbelievable"];
+
+let score=0;
+let detected=[];
+
+triggerWords.forEach(word=>{
+if(text.includes(word)){
+score++;
+detected.push(word);
+}
+});
+
+let credibility=100-(score*10);
+if(credibility<30) credibility=30;
+
+let verdict="";
+if(score>=4){
+verdict="<span style='color:#ff6666;font-weight:bold;'>⚠ Potentially Misleading</span>";
+}else{
+verdict="<span style='color:#66ff99;font-weight:bold;'>✓ Likely Credible</span>";
+}
+
+output.style.display="block";
+output.innerHTML=`
+<h3>Result</h3>
+${verdict}
+<br><br>
+Credibility Score: <strong>${credibility}%</strong>
+<br><br>
+Detected Markers: ${detected.length>0 ? detected.join(", ") : "None"}
+`;
+}
+</script>
+
+</body>
+</html>

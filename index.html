@@ -127,7 +127,68 @@
     .modal.show { display:flex; }
 
     /* Footer */
-    footer { padding:24px 8px; text-align:center; color: rgba(255,255,255,0.6); }
+    footer {
+      background: var(--bg-black);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+    }
+    footer .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: space-between;
+      align-items: flex-start;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 32px 20px 16px;
+    }
+    footer .footer-col {
+      flex: 1 1 200px;
+      min-width: 200px;
+    }
+    footer .footer-col h4 {
+      color: #fff;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+    footer .footer-col p,
+    footer .footer-col ul,
+    footer .footer-col a {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.95rem;
+    }
+    footer .footer-col a {
+      transition: color 0.2s, transform 0.2s;
+    }
+    footer .footer-col a:hover {
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    footer .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    footer .footer-col ul li {
+      margin-bottom: 6px;
+    }
+    footer .footer-bottom {
+      text-align: center;
+      padding: 12px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+    }
+    @media (max-width:600px) {
+      footer .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      footer .footer-col {
+        min-width: unset;
+      }
+    }
 
     /* Responsive tweaks */
     @media (max-width:640px){
@@ -168,6 +229,7 @@
             <a href="#bharat" data-target="#bharat" role="menuitem">Bharat at Home</a>
             <a href="#news" data-target="#news" role="menuitem">News</a>
             <a href="#contact" data-target="#contact" role="menuitem">Contact</a>
+
           </div>
         </nav>
       </div>
@@ -181,13 +243,27 @@
         </div>
       </div>
     </header>
-
     <main class="container" role="main">
+      <!-- About Us -->
+      <section id="about" aria-labelledby="about-heading" style="margin-top:28px;">
+        <h3 id="about-heading" style="color:var(--saffron); margin-bottom:6px;">About Us</h3>
+        <p style="color:var(--muted); margin-top:0;">Dharma Setu is an AI-driven fake news detection platform focused on identifying misinformation through natural language analysis and machine learning, empowering users to make informed decisions.</p>
+      </section>
+
       <!-- Bharat at Home -->
       <section id="bharat" aria-labelledby="bharat-heading">
         <h3 id="bharat-heading" style="color:var(--saffron); margin-bottom:6px;">Bharat at Home</h3>
         <p style="color:var(--muted); margin-top:0;">A short collection about India's heritage, science, and local initiatives.</p>
         <div class="grid" style="margin-top:14px;">
+          <div class="card">
+              <h3>🧠 Fake News Detector</h3>
+                <p style="color:var(--muted)">
+                      AI-powered system that analyzes news content and detects misleading linguistic patterns.
+                        </p>
+                        <button class="btn secondary" onclick="window.location.href='ai-fake-news.html'">   
+                           Open Detector
+                           </button>                 
+          </div>               
           <div class="card">
             <h3>📜 Heritage</h3>
             <p style="color:var(--muted)">Discover major historical places and their stories — from the Indus Valley to modern monuments.</p>
@@ -252,9 +328,27 @@
     </div>
 
     <footer>
-      <div class="container">
-        © Dharma Setu — Prototype • Built by Hari Vissa and Michelle 
+      <div class="footer-content container">
+        <div class="footer-col about">
+          <h4>About Dharma Setu</h4>
+          <p>AI-based Fake News Detection platform that analyzes and flags potential misinformation using advanced machine learning.</p>
+        </div>
+        <div class="footer-col links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="ai-fake-news.html">Fake News Detector</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col contact">
+          <h4>Contact</h4>
+          <p>Email: <a href="mailto:info@dharmasetu.example">info@dharmasetu.example</a></p>
+          <p>LinkedIn | GitHub</p>
+        </div>
       </div>
+      <div class="footer-bottom">© 2026 Dharma Setu | AI Fake News Detection System</div>
     </footer>
   </div>
 
@@ -302,7 +396,8 @@
     const modal = document.getElementById('modal');
     const modalContent = document.getElementById('modalContent');
     const contentData = {
-      heritage: {
+      heritage: 
+      {
         title: 'Heritage — Quick Notes',
         body: `<p style="color:var(--muted)">India's heritage is a tapestry of ancient civilizations, classical arts, temples, and monuments. From the Indus Valley's archaeological sites to the UNESCO world heritage list — each place tells a story.</p>
                <ul style="color:var(--muted)"><li>Major sites: Qutub, Ajanta & Ellora, Sun Temple Konark</li><li>Tip: Explore local museums and guided tours</li></ul>`
@@ -441,4 +536,3 @@
   </script>
 </body>
 </html>
-
