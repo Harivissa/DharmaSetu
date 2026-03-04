@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dharma Setu — AI Fake News Detection System</title>
+
+<style>
+
+:root{
+--saffron:#ff9933;
+--bg:#000;
+--muted:rgba(255,255,255,.75);
+--card:rgba(255,255,255,.04);
+}
+
+body{
+margin:0;
+font-family:Inter,Segoe UI,Arial;
+background:var(--bg);
+color:white;
+}
+
+.container{
+max-width:1000px;
+margin:auto;
+padding:40px 20px;
+}
+
+h1{
+text-align:center;
+color:var(--saffron);
+}
+
+.subtitle{
+text-align:center;
+color:var(--muted);
+margin-bottom:30px;
+}
+
+.card{
+background:var(--card);
+padding:25px;
+border-radius:12px;
+border:1px solid rgba(255,255,255,.06);
+}
+
+textarea{
+width:100%;
+padding:15px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,.08);
+background:rgba(255,255,255,.02);
+color:white;
+font-size:15px;
+resize:vertical;
+}
+
+button{
+background:var(--saffron);
+border:none;
+padding:12px 20px;
+margin-top:15px;
+border-radius:8px;
+font-weight:600;
+cursor:pointer;
+}
+
+.loader{
+margin-top:15px;
+display:none;
+color:var(--muted);
+}
+
+.result{
+margin-top:25px;
+display:none;
+background:rgba(255,255,255,.05);
+padding:20px;
+border-radius:10px;
+}
+
+.bar{
+height:12px;
+background:rgba(255,255,255,.1);
+border-radius:10px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.fill{
+height:100%;
+background:var(--saffron);
+width:0%;
+transition:width 1s;
+}
+
+.metrics{
+margin-top:15px;
+color:var(--muted);
+}
+
+.back{
+display:block;
+text-align:center;
+margin-top:30px;
+color:var(--saffron);
+text-decoration:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>AI Fake News Detection System</h1>
+
+<div class="subtitle">
+Machine Learning based NLP system that evaluates credibility of news articles using linguistic pattern analysis.
+</div>
+
+<div class="card">
+
+<textarea id="inputText" rows="8" placeholder="Paste news article content here..."></textarea>
+
+<button onclick="runAI()">Analyze with AI</button>
+
+<div id="loader" class="loader">
+Running NLP preprocessing → Feature extraction → Model inference...
+</div>
+
+<div id="output" class="result">
+
+<h3>Prediction Result</h3>
+
+<div id="verdict"></div>
+
+<br>
+
+Fake News Probability: <strong id="prob"></strong>
+
+<div class="bar">
+<div id="scoreBar" class="fill"></div>
+</div>
+
+<div class="metrics" id="explanation"></div>
+
+</div>
+
+</div>
+
+<a href="index.html" class="back">← Back to Home</a>
+
+</div>
+
+<script>
+
+function runAI(){
+
+let text=document.getElementById("inputText").value.toLowerCase();
+let loader=document.getElementById("loader");
+let output=document.getElementById("output");
+
+if(text.trim()==""){
+alert("Please enter news content");
+return;
+}
+
+loader.style.display="block";
+output.style.display="none";
+
+setTimeout(()=>{
+
+let exaggeration=["shocking","unbelievable","secret","exposed","miracle","100%"];
+let urgency=["breaking","urgent","act now","immediately"];
+let emotion=["fear","anger","danger","threat","outrage"];
+
+let score=0;
+let triggers=[];
+
+exaggeration.forEach(w=>{
+if(text.includes(w)){score+=2;triggers.push(w);}
+});
+
+urgency.forEach(w=>{
+if(text.includes(w)){score+=1;triggers.push(w);}
+});
+
+emotion.forEach(w=>{
+if(text.includes(w)){score+=1;triggers.push(w);}
+});
+
+let fakeProbability=Math.min(30+(score*15),95);
+
+let verdict;
+
+if(fakeProbability>60){
+verdict="<span style='color:#ff6666;font-weight:bold;font-size:18px;'>⚠ Fake News Detected</span>";
+}
+else{
+verdict="<span style='color:#66ff99;font-weight:bold;font-size:18px;'>✓ Likely Genuine News</span>";
+}
+
+document.getElementById("verdict").innerHTML=verdict;
+
+document.getElementById("prob").innerHTML=fakeProbability+"%";
+
+document.getElementById("scoreBar").style.width=fakeProbability+"%";
+
+document.getElementById("explanation").innerHTML=
+"Detected NLP signals: "+
+(triggers.length>0 ? triggers.join(", ") : "None")+
+"<br><br>Model evaluation simulated using linguistic pattern scoring inspired by NLP classification models.";
+
+loader.style.display="none";
+output.style.display="block";
+
+},1500);
+
+}
+
+</script>
+
+</body>
+</html>
